@@ -2,10 +2,41 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from '@/styles/Home.module.css'
+import { useEffect } from 'react'
+import { CosmWasmClient } from '@cosmjs/cosmwasm-stargate'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+
+  useEffect(() => {
+
+    (async () => {
+      const rpcEndpoint = "https://nois.rpc.bccnodes.com/"
+      const contract = "nois1a4g7duyu45m0y2ex7s0u8kad87w6ee70v3nz45mh89mjr7zae4pqffrtcz";
+      const client = await CosmWasmClient.connect(rpcEndpoint);
+
+      setInterval(() => {
+        const query = { beacons_desc: { start_after: null, limit: 1 }};
+        client.queryContractSmart(contract, query)
+          .then(response => {
+            // console.log(response);
+            const [beacon] = response.beacons; // always 1 element because we set limit to 1 above
+            console.log(beacon);
+          },
+          err => {
+            console.error(err);
+          })
+      }, 5_000);
+
+
+    })().then(
+      () => {},
+      err => console.error(err)
+    );
+
+  }, []);
+
   return (
     <>
       <Head>
